@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.VitaScanAI" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Optional: System bar color overrides -->
+    </style>
+</resources>

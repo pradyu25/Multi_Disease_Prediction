@@ -1,0 +1,143 @@
+# =============================
+# VitaScan AI / Multi Disease Prediction
+# Project-wide Gitignore
+# =============================
+
+# -----------------------------
+# Python / Virtual Environments
+# -----------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+*.dll
+*.lib
+*.exe
+
+# Environments (Recursive)
+.venv/
+venv/
+env/
+ENV/
+.venv*/
+**/venv/
+**/.venv/
+**/ENV/
+
+# Python Build & Distribution
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# -----------------------------
+# Machine Learning & Data
+# -----------------------------
+# Ignore all models and large datasets
+*.joblib
+*.pkl
+*.npy
+*.pth
+*.pt
+*.h5
+*.onnx
+
+# Specific Data Folders
+backend/uploads/*
+!backend/uploads/.gitkeep
+datasets/
+**/datasets/
+
+# -----------------------------
+# Android / Gradle
+# -----------------------------
+# Recursive build ignore
+build/
+**/build/
+.gradle/
+**/ .gradle/
+local.properties
+**/local.properties
+.idea/
+**/.idea/
+.kotlin/
+**/ .kotlin/
+
+# Android generated files
+*.apk
+*.aar
+*.jar
+*.jks
+captures/
+**/captures/
+.externalNativeBuild/
+**/.externalNativeBuild/
+.cxx/
+**/.cxx/
+
+# -----------------------------
+# Deployment & Bundles
+# -----------------------------
+Deployment_Bundle/
+**/Deployment_Bundle/
+dist/
+
+# -----------------------------
+# Configuration & Secrets
+# -----------------------------
+.env
+.env.*
+!.env.example
+
+# -----------------------------
+# Logging & Debugging
+# -----------------------------
+*.log
+**/build_*.log
+**/build_log.txt
+.cache/
+**/.cache/
+
+# -----------------------------
+# System & IDEs
+# -----------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+vitascan.db
+
+# -----------------------------
+# Web / Node (Recursive)
+# -----------------------------
+node_modules/
+**/node_modules/
+
+# -----------------------------
+# Large Binary Libraries
+# -----------------------------
+# Explicitly ignore common large ML dependency files
+**/torch/
+**/torch_cpu.dll
+**/libtorch_cpu.so
+**/dnnl.lib
+**/xgboost.dll
+**/site-packages/
+**/msvcp140.dll
+**/vcruntime140.dll
+**/vcruntime140_1.dll
