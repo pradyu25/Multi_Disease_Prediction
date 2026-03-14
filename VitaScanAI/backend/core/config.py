@@ -30,7 +30,19 @@ class Settings(BaseSettings):
     # Tesseract
     tesseract_cmd: str = "/usr/bin/tesseract"
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env", 
+        extra="ignore",
+        protected_namespaces=('settings_',)
+    )
+
+    @property
+    def database_url_async(self) -> str:
+        """Ensures the database URL uses the asyncpg driver."""
+        url = self.database_url
+        if url.startswith("postgresql://"):
+            return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return url
 
 
 @lru_cache
