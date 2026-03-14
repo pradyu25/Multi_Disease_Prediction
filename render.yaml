@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: vitascan-ai-backend
+    env: docker
+    region: ohio # Change as needed
+    plan: free # Use 'free' or another plan (e.g., 'starter')
+    dockerContext: VitaScanAI/backend
+    dockerfilePath: Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: DATABASE_URL
+        sync: false # Set this in the Render Dashboard
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: "HS256"
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+      - key: UPLOAD_DIR
+        value: "uploads"
+    # Mount a disk for local uploads if not using S3
+    # Use 'free' plan doesn't support disks. If using free, uploads will be lost on restart.
+    # disk:
+    #   name: uploads
+    #   mountPath: /app/uploads
+    #   sizeGB: 1
