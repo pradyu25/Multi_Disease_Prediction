@@ -5,7 +5,7 @@ services:
     region: ohio # Change as needed
     plan: free # Use 'free' or another plan (e.g., 'starter')
     dockerContext: VitaScanAI/backend
-    dockerfilePath: Dockerfile
+    dockerfilePath: VitaScanAI/backend/Dockerfile
     healthCheckPath: /
     envVars:
       - key: PORT
