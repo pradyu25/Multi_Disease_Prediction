@@ -18,8 +18,9 @@ android {
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Backend base URL – pointing to local machine for mobile testing
-        buildConfigField("String", "BASE_URL", "\"http://192.168.0.118:8000/\"")
+        // Production Backend URL (Render)
+        buildConfigField("String", "BASE_URL", "\"https://vitascan-ai-backend.onrender.com/\"")
+        // Local machine for mobile testing fallback: "http://192.168.0.118:8000/"
     }
 
     buildTypes {
@@ -30,7 +31,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "BASE_URL", "\"https://api.vitascan.ai/\"")
+            buildConfigField("String", "BASE_URL", "\"https://vitascan-ai-backend.onrender.com/\"")
         }
         debug {
             isDebuggable = true

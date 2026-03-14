@@ -38,21 +38,17 @@ async def upload_report(
     if auth_user_id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized to upload for this user")
 
-    # Save file locally (In prod, use S3)
+    # Save file with unique ID
     os.makedirs(settings.upload_dir, exist_ok=True)
-    file_path = os.path.join(settings.upload_dir, file.filename)
+    file_ext = os.path.splitext(file.filename)[1]
+    unique_filename = f"{new_report.report_id}{file_ext}"
+    file_path = os.path.join(settings.upload_dir, unique_filename)
     
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
         
-    file_url = f"{settings.upload_dir}/{file.filename}"
-    
-    new_report = Report(
-        user_id=user_id,
-        file_url=file_url,
-        file_type=file.content_type
-    )
-    db.add(new_report)
+    file_url = f"uploads/{unique_filename}"
+    new_report.file_url = file_url
     await db.commit()
     await db.refresh(new_report)
     

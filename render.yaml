@@ -8,8 +8,6 @@ services:
     dockerfilePath: VitaScanAI/backend/Dockerfile
     healthCheckPath: /
     envVars:
-      - key: PORT
-        value: 8000
       - key: DATABASE_URL
         sync: false # Set this in the Render Dashboard
       - key: DEBUG
