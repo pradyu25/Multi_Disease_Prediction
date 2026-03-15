@@ -1,3 +1,15 @@
+envVarGroups:
+  - name: vitascan-shared
+    envVars:
+      - key: DATABASE_URL
+        sync: false # Set once in the Dashboard for the whole group
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: "HS256"
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+
 services:
   - type: web
     name: vitascan-ai-backend
@@ -7,11 +19,9 @@ services:
     dockerContext: VitaScanAI/backend
     dockerfilePath: VitaScanAI/backend/Dockerfile
     healthCheckPath: /
+    fromGroup:
+      name: vitascan-shared
     envVars:
-      - key: DATABASE_URL
-        sync: false
-      - key: DEBUG
-        value: "false"
       - key: SERVICE_ROLE
         value: "core"
       - key: USE_LLM
@@ -20,8 +30,6 @@ services:
         value: "https://vitascan-ai-recommender.onrender.com"
       - key: UPLOAD_DIR
         value: "uploads"
-      - key: SECRET_KEY
-        generateValue: true
 
   - type: web
     name: vitascan-ai-recommender
@@ -31,22 +39,12 @@ services:
     dockerContext: VitaScanAI/backend
     dockerfilePath: VitaScanAI/backend/Dockerfile
     healthCheckPath: /
+    fromGroup:
+      name: vitascan-shared
     envVars:
-      - key: DATABASE_URL
-        sync: false
-      - key: DEBUG
-        value: "false"
       - key: SERVICE_ROLE
         value: "recommender"
       - key: USE_LLM
         value: "true"
       - key: HF_MODEL_NAME
         value: "google/flan-t5-small"
-      - key: SECRET_KEY
-        sync: true # Should match core SECRET_KEY
-    # Mount a disk for local uploads if not using S3
-    # Use 'free' plan doesn't support disks. If using free, uploads will be lost on restart.
-    # disk:
-    #   name: uploads
-    #   mountPath: /app/uploads
-    #   sizeGB: 1
