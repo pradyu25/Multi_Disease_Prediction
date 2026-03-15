@@ -2,7 +2,7 @@ envVarGroups:
   - name: vitascan-shared
     envVars:
       - key: DATABASE_URL
-        sync: false # Set once in the Dashboard for the whole group
+        # Value will be set in the Render Dashboard once
       - key: SECRET_KEY
         generateValue: true
       - key: ALGORITHM
@@ -19,9 +19,8 @@ services:
     dockerContext: VitaScanAI/backend
     dockerfilePath: VitaScanAI/backend/Dockerfile
     healthCheckPath: /
-    fromGroup:
-      name: vitascan-shared
     envVars:
+      - fromGroup: vitascan-shared
       - key: SERVICE_ROLE
         value: "core"
       - key: USE_LLM
@@ -39,9 +38,8 @@ services:
     dockerContext: VitaScanAI/backend
     dockerfilePath: VitaScanAI/backend/Dockerfile
     healthCheckPath: /
-    fromGroup:
-      name: vitascan-shared
     envVars:
+      - fromGroup: vitascan-shared
       - key: SERVICE_ROLE
         value: "recommender"
       - key: USE_LLM
