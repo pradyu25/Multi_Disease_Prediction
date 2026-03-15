@@ -1,15 +1,8 @@
 import re
-import pdfplumber
-import docx
-import pytesseract
-from PIL import Image
-from pdf2image import convert_from_path
 from typing import Dict, Optional, Tuple
 from core.config import get_settings
 
 settings = get_settings()
-
-pytesseract.pytesseract.tesseract_cmd = settings.tesseract_cmd
 
 # Medical parameters to look for - more flexible regex
 PARAMETERS = {
@@ -22,11 +15,16 @@ PARAMETERS = {
     "blood_pressure_diastolic": r"(?i)(?:bp|blood\s*pressure).*?\s+(\d{2,3})\s*/\s*(\d{2,3})"
 }
 
-
 async def extract_text_from_file(file_path: str, mime_type: str) -> str:
+    import pytesseract
+    from PIL import Image
+    pytesseract.pytesseract.tesseract_cmd = settings.tesseract_cmd
+    
     text = ""
     try:
         if mime_type == "application/pdf":
+            import pdfplumber
+            from pdf2image import convert_from_path
             # Try normal text extraction first
             with pdfplumber.open(file_path) as pdf:
                 for page in pdf.pages:
@@ -41,6 +39,7 @@ async def extract_text_from_file(file_path: str, mime_type: str) -> str:
                 for img in images:
                     text += pytesseract.image_to_string(img) + "\n"
         elif "wordprocessingml.document" in mime_type:
+            import docx
             doc = docx.Document(file_path)
             for para in doc.paragraphs:
                 text += para.text + "\n"

@@ -17,14 +17,26 @@ class LLMService:
             try:
                 import torch
                 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+                
+                # Critical for memory constrained environments like Render
+                torch.set_num_threads(1)
+                
                 print(f"Loading {self.model_name}...")
                 self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-                self.model = AutoModelForSeq2SeqLM.from_pretrained(self.model_name)
-                # Move to GPU if available
+                
+                # Use low_cpu_mem_usage to avoid full copy in RAM
+                self.model = AutoModelForSeq2SeqLM.from_pretrained(
+                    self.model_name,
+                    low_cpu_mem_usage=True,
+                    torch_dtype=torch.float32
+                )
+                
+                # Move to GPU if available (rare on Render free tier but good practice)
                 self.device = "cuda" if torch.cuda.is_available() else "cpu"
-                self.model.to(self.device)
+                self.model.to(self.device).eval() # Set to eval mode immediately
+                
                 self.is_loaded = True
-                print("LLM loaded successfully.")
+                print("LLM loaded successfully with low_cpu_mem_usage.")
             except Exception as e:
                 print(f"Error loading LLM: {e}")
 

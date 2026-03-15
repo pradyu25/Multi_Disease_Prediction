@@ -28,5 +28,5 @@ RUN python ml/train_model.py
 # Expose FastAPI port
 EXPOSE 8000
 
-# Run uvicorn server with dynamic port for Render
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Run uvicorn server with dynamic port for Render, forcing 1 worker to save memory
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1"]

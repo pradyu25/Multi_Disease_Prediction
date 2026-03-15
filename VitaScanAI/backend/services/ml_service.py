@@ -1,6 +1,4 @@
 import os
-import joblib
-import pandas as pd
 import numpy as np
 from typing import Dict, Any
 from core.config import get_settings
@@ -10,7 +8,7 @@ settings = get_settings()
 class MLService:
     def __init__(self):
         self.model = None
-        self._load_model()
+        self.is_loading_failed = False
         
         # Expected features in the exact order the model expects
         self.feature_names = [
@@ -19,15 +17,26 @@ class MLService:
         ]
 
     def _load_model(self):
+        if self.model is not None or self.is_loading_failed:
+            return
+            
         if os.path.exists(settings.model_path):
             try:
+                import joblib
+                print(f"Loading ML model from {settings.model_path}...")
                 self.model = joblib.load(settings.model_path)
             except Exception as e:
                 print(f"Failed to load ML model: {e}")
+                self.is_loading_failed = True
         else:
-            print(f"ML model not found at {settings.model_path}")
+            print(f"ML model not found at {settings.model_path}. Using fallback/mock.")
+            self.is_loading_failed = True
 
     def predict(self, parameters: Dict[str, float]) -> Dict[str, Any]:
+        self._load_model()
+        
+        import pandas as pd
+        
         """
         Assumes parameters dictionary contains all required fields. 
         Missing fields should be imputed.
