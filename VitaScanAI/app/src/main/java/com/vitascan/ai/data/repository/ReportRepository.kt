@@ -15,11 +15,13 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
 class ReportRepository @Inject constructor(
     private val api: ApiService,
+    @Named("RecsApiService") private val recsApi: ApiService,
     private val reportDao: ReportDao,
     private val medicalValueDao: MedicalValueDao,
     private val predictionDao: PredictionDao,
@@ -88,7 +90,7 @@ class ReportRepository @Inject constructor(
         predictions: PredictionResponse
     ): Result<RecommendationResponse> {
         val result = safeApiCall {
-            api.getRecommendations(RecommendationRequest(reportId, parameters, predictions))
+            recsApi.getRecommendations(RecommendationRequest(reportId = reportId, parameters = parameters, predictions = predictions))
         }
         if (result is Result.Success) {
             recommendationDao.upsertRecommendation(
