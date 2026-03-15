@@ -34,7 +34,23 @@ async def get_db():
 
 
 async def init_db():
-    print(f"Connecting to database at: {settings.database_url_async.split('@')[-1]}") # Log host details only
+    db_host = settings.database_url_async.split('@')[-1]
+    print(f"Connecting to database at: {db_host}")
+    
+    # Check for placeholder value
+    if "placeholder-replace-in-dashboard" in settings.database_url_async:
+        print("\n" + "="*60)
+        print("CRITICAL ALERT: DEFAULT DATABASE PLACEHOLDER DETECTED")
+        print("="*60)
+        print("Your service is still using the placeholder 'DATABASE_URL'.")
+        print("ACTION REQUIRED:")
+        print("1. Go to your Render Dashboard.")
+        print("2. Click 'Env Groups' in the sidebar.")
+        print("3. Edit the 'vitascan-shared' group.")
+        print("4. Replace DATABASE_URL with your actual PostgreSQL Internal URL.")
+        print("="*60 + "\n")
+        raise ConnectionError("Database URL not configured. See logs above for instructions.")
+
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
