@@ -68,3 +68,12 @@ else:
 @app.get("/")
 async def root():
     return {"message": f"Welcome to {settings.app_name} API"}
+
+@app.get("/health")
+async def health_check():
+    """Endpoint for UptimeRobot monitoring"""
+    return {
+        "status": "healthy",
+        "app": settings.app_name,
+        "version": settings.app_version
+    }

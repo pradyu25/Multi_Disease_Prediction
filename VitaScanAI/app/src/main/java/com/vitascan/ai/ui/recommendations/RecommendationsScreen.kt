@@ -34,7 +34,7 @@ fun RecommendationsScreen(
                 title = { Text("AI Recommendations", fontWeight = FontWeight.Bold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, null) } },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = HealthGreen, titleContentColor = Color.White,
+                    containerColor = PureBlack, titleContentColor = Color.White,
                     navigationIconContentColor = Color.White
                 )
             )
@@ -42,7 +42,7 @@ fun RecommendationsScreen(
     ) { padding ->
         if (state.isLoading) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = HealthGreen)
+                CircularProgressIndicator(color = PureBlack)
             }
         } else if (state.recommendation == null) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
@@ -50,7 +50,7 @@ fun RecommendationsScreen(
                     Text("🤖", style = MaterialTheme.typography.displayMedium)
                     Spacer(Modifier.height(12.dp))
                     Text("No recommendations yet", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text("Analyse a report first to get AI-powered guidance", color = NeutralGray)
+                    Text("Analyse a report first to get AI-powered guidance", color = CaptionGray)
                 }
             }
         } else {
@@ -66,7 +66,7 @@ fun RecommendationsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(20.dp))
-                            .background(Brush.horizontalGradient(listOf(HealthGreenDark, HealthGreen)))
+                            .background(Brush.horizontalGradient(listOf(AccentGreenDark, AccentGreen)))
                             .padding(24.dp)
                     ) {
                         Column {
@@ -177,10 +177,10 @@ private fun RecommendationCard(
                 }
                 Spacer(Modifier.width(12.dp))
                 Text(title, style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold, color = NeutralGrayDark)
+                    fontWeight = FontWeight.Bold, color = DeepGray)
             }
             Spacer(Modifier.height(12.dp))
-            Text(content, style = MaterialTheme.typography.bodyMedium, color = NeutralGrayDark)
+            Text(content, style = MaterialTheme.typography.bodyMedium, color = DeepGray)
         }
     }
 }

@@ -12,11 +12,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vitascan.ai.data.local.entities.PredictionEntity
 import com.vitascan.ai.data.local.entities.ReportEntity
@@ -97,7 +99,7 @@ fun DashboardScreen(
                 // Greeting and Logo placeholder
                 item {
                     Column {
-                        Text("Vitascan Analytics", style = MaterialTheme.typography.labelMedium, color = MediumGray, letterSpacing = 1.sp)
+                        Text("Vitascan Analytics", style = MaterialTheme.typography.labelMedium, color = CaptionGray, letterSpacing = 1.sp)
                         Text("Hello, ${state.userName}", style = MaterialTheme.typography.displayMedium)
                     }
                 }
@@ -124,7 +126,7 @@ fun DashboardScreen(
                         Text("LATEST ANALYSIS", style = MaterialTheme.typography.labelLarge, 
                              fontWeight = FontWeight.Black, color = PureBlack, letterSpacing = 1.sp)
                         TextButton(onClick = onNavigateToAnalytics) {
-                            Text("HISTORY", style = MaterialTheme.typography.labelSmall, color = MediumGray)
+                            Text("HISTORY", style = MaterialTheme.typography.labelSmall, color = CaptionGray)
                         }
                     }
                 }
@@ -200,7 +202,7 @@ private fun RiskCard(label: String, risk: Int, icon: androidx.compose.ui.graphic
             Icon(icon, null, tint = PureBlack, modifier = Modifier.size(24.dp))
             Spacer(Modifier.height(12.dp))
             Text("${risk}%", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
-            Text(label.uppercase(), style = MaterialTheme.typography.labelSmall, color = MediumGray, fontWeight = FontWeight.Bold)
+            Text(label.uppercase(), style = MaterialTheme.typography.labelSmall, color = CaptionGray, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -224,7 +226,7 @@ private fun ReportCard(report: ReportEntity, onClick: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Text("SCAN ANALYSIS", style = MaterialTheme.typography.labelSmall, color = MediumGray, fontWeight = FontWeight.Bold)
                 Text("Report ${report.reportId.take(6).uppercase()}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(report.uploadDate.take(10), style = MaterialTheme.typography.bodySmall, color = MediumGray)
+                Text(report.uploadDate.take(10), style = MaterialTheme.typography.bodySmall, color = CaptionGray)
             }
             Icon(Icons.Default.ArrowForwardIos, null, tint = LightGray, modifier = Modifier.size(16.dp))
         }
@@ -242,7 +244,7 @@ private fun EmptyRiskCard(onUpload: () -> Unit) {
             Text("DATA COLLECTION REQUIRED", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(16.dp))
             Text("No clinical reports detected. Start scanning to see real-time health trends.", 
-                color = MediumGray, style = MaterialTheme.typography.bodyMedium, 
+                color = CaptionGray, style = MaterialTheme.typography.bodyMedium, 
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center)
         }
     }
@@ -254,6 +256,6 @@ private fun EmptyReportsCard(onUpload: () -> Unit) {
         modifier = Modifier.fillMaxWidth().height(100.dp).background(ElevationGray, RoundedCornerShape(16.dp)),
         contentAlignment = Alignment.Center
     ) {
-        Text("HISTORY EMPTY", style = MaterialTheme.typography.labelSmall, color = MediumGray, fontWeight = FontWeight.Black)
+        Text("HISTORY EMPTY", style = MaterialTheme.typography.labelSmall, color = CaptionGray, fontWeight = FontWeight.Black)
     }
 }

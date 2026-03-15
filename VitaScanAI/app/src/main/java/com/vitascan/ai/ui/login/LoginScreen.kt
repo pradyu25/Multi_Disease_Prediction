@@ -94,9 +94,13 @@ fun LoginScreen(
                     modifier    = Modifier.fillMaxWidth(),
                     shape       = RoundedCornerShape(16.dp),
                     colors      = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor     = PureBlack,
+                        unfocusedTextColor   = PureBlack,
+                        cursorColor          = PureBlack,
                         focusedBorderColor   = PureBlack,
                         unfocusedBorderColor = BorderGray,
-                        focusedLabelColor    = PureBlack
+                        focusedLabelColor    = PureBlack,
+                        unfocusedLabelColor  = DeepGray
                     )
                 )
 
@@ -118,9 +122,13 @@ fun LoginScreen(
                     modifier    = Modifier.fillMaxWidth(),
                     shape       = RoundedCornerShape(16.dp),
                     colors      = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor     = PureBlack,
+                        unfocusedTextColor   = PureBlack,
+                        cursorColor          = PureBlack,
                         focusedBorderColor   = PureBlack,
                         unfocusedBorderColor = BorderGray,
-                        focusedLabelColor    = PureBlack
+                        focusedLabelColor    = PureBlack,
+                        unfocusedLabelColor  = DeepGray
                     )
                 )
             }
@@ -142,7 +150,12 @@ fun LoginScreen(
                 modifier  = Modifier.fillMaxWidth().height(60.dp),
                 enabled   = !state.isLoading,
                 shape     = RoundedCornerShape(16.dp),
-                colors    = ButtonDefaults.buttonColors(containerColor = PureBlack)
+                colors    = ButtonDefaults.buttonColors(
+                    containerColor = PureBlack,
+                    contentColor   = PureWhite,
+                    disabledContainerColor = LightGray,
+                    disabledContentColor   = MediumGray
+                )
             ) {
                 if (state.isLoading) {
                     CircularProgressIndicator(
@@ -151,7 +164,7 @@ fun LoginScreen(
                         strokeWidth = 1.dp
                     )
                 } else {
-                    Text("SECURE LOGIN", fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+                    Text("SECURE LOGIN", color = PureWhite, fontWeight = FontWeight.Black, letterSpacing = 2.sp)
                 }
             }
 

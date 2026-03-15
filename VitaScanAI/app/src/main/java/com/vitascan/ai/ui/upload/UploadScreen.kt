@@ -62,7 +62,7 @@ fun UploadScreen(
                     IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, null) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MedicalBlue, titleContentColor = Color.White,
+                    containerColor = PureBlack, titleContentColor = Color.White,
                     navigationIconContentColor = Color.White
                 )
             )
@@ -156,7 +156,12 @@ fun UploadScreen(
                     enabled  = state.selectedUri != null && state.step == UploadStep.IDLE,
                     modifier = Modifier.fillMaxWidth().height(52.dp),
                     shape    = RoundedCornerShape(12.dp),
-                    colors   = ButtonDefaults.buttonColors(containerColor = MedicalBlue)
+                    colors   = ButtonDefaults.buttonColors(
+                        containerColor = PureBlack,
+                        contentColor   = PureWhite,
+                        disabledContainerColor = LightGray,
+                        disabledContentColor   = MediumGray
+                    )
                 ) {
                     Icon(Icons.Default.PlayArrow, null)
                     Spacer(Modifier.width(8.dp))
@@ -292,7 +297,7 @@ private fun CameraPreview(
                         }
                     )
                 },
-                containerColor = MedicalBlue,
+                containerColor = PureBlack,
                 contentColor   = Color.White
             ) {
                 Icon(Icons.Default.Camera, "Capture")

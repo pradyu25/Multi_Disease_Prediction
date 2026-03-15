@@ -83,9 +83,13 @@ fun SignupScreen(
                         modifier      = Modifier.fillMaxWidth(),
                         shape         = RoundedCornerShape(16.dp),
                         colors        = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor     = PureBlack,
+                            unfocusedTextColor   = PureBlack,
+                            cursorColor          = PureBlack,
                             focusedBorderColor   = PureBlack,
                             unfocusedBorderColor = BorderGray,
-                            focusedLabelColor    = PureBlack
+                            focusedLabelColor    = PureBlack,
+                            unfocusedLabelColor  = DeepGray
                         )
                     )
                 }
@@ -106,10 +110,15 @@ fun SignupScreen(
                 enabled   = !state.isLoading,
                 modifier  = Modifier.fillMaxWidth().height(60.dp),
                 shape     = RoundedCornerShape(16.dp),
-                colors    = ButtonDefaults.buttonColors(containerColor = PureBlack)
+                colors    = ButtonDefaults.buttonColors(
+                    containerColor = PureBlack,
+                    contentColor   = PureWhite,
+                    disabledContainerColor = LightGray,
+                    disabledContentColor   = MediumGray
+                )
             ) {
                 if (state.isLoading) CircularProgressIndicator(color = PureWhite, modifier = Modifier.size(24.dp), strokeWidth = 1.dp)
-                else Text("CREATE ACCOUNT", fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+                else Text("CREATE ACCOUNT", color = PureWhite, fontWeight = FontWeight.Black, letterSpacing = 2.sp)
             }
 
             Spacer(Modifier.height(24.dp))

@@ -40,7 +40,7 @@ fun ReportViewScreen(
                     IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, null) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MedicalBlue, titleContentColor = Color.White,
+                    containerColor = PureBlack, titleContentColor = Color.White,
                     navigationIconContentColor = Color.White
                 ),
                 actions = {
@@ -64,7 +64,10 @@ fun ReportViewScreen(
                         onClick = { viewModel.analyzeReport() },
                         modifier = Modifier.weight(1f).height(50.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MedicalBlue)
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = PureBlack,
+                            contentColor   = PureWhite
+                        )
                     ) {
                         Icon(Icons.Default.QueryStats, null)
                         Spacer(Modifier.width(8.dp))
@@ -74,7 +77,10 @@ fun ReportViewScreen(
                         onClick = onNavigateToRecs,
                         modifier = Modifier.weight(1f).height(50.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = HealthGreen)
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = AccentGreen,
+                            contentColor   = PureWhite
+                        )
                     ) {
                         Icon(Icons.Default.AutoAwesome, null)
                         Spacer(Modifier.width(8.dp))
@@ -86,7 +92,7 @@ fun ReportViewScreen(
     ) { padding ->
         if (state.isLoading) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = MedicalBlue)
+                CircularProgressIndicator(color = PureBlack)
             }
         } else {
             LazyColumn(
@@ -158,7 +164,7 @@ private fun RiskGauge(
             Spacer(Modifier.height(4.dp))
             Text("$risk%", style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold, color = color)
-            Text(label, style = MaterialTheme.typography.labelSmall, color = NeutralGray)
+            Text(label, style = MaterialTheme.typography.labelSmall, color = CaptionGray)
             Spacer(Modifier.height(4.dp))
             LinearProgressIndicator(
                 progress   = { risk / 100f },

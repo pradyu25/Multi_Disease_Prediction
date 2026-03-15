@@ -1,6 +1,8 @@
 package com.vitascan.ai.ui.analytics
 
 import android.graphics.Color as AndroidColor
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -14,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.github.mikephil.charting.charts.LineChart
@@ -76,11 +79,15 @@ fun AnalyticsScreen(
                                 selectedContainerColor = PureBlack,
                                 selectedLabelColor     = PureWhite,
                                 containerColor         = PureWhite,
-                                labelColor             = MediumGray
+                                labelColor             = DeepGray
                             ),
                             border = FilterChipDefaults.filterChipBorder(
-                                borderColor = if (param == selectedParam) PureBlack else BorderGray,
-                                borderWidth = 1.dp
+                                enabled   = true,
+                                selected  = param == selectedParam,
+                                borderColor = BorderGray,
+                                selectedBorderColor = PureBlack,
+                                borderWidth = 1.dp,
+                                selectedBorderWidth = 1.dp
                             )
                         )
                     }
@@ -118,7 +125,7 @@ fun AnalyticsScreen(
                         Text(
                             "Insufficient data points for trend analysis. Please upload at least 2 reports.",
                             modifier = Modifier.padding(24.dp),
-                            color    = MediumGray,
+                            color    = CaptionGray,
                             style    = MaterialTheme.typography.bodyMedium,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
@@ -204,7 +211,7 @@ private fun StatCard(label: String, value: String, modifier: Modifier) {
     ) {
         Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black, color = PureBlack)
-            Text(label, style = MaterialTheme.typography.labelSmall, color = MediumGray, fontWeight = FontWeight.Bold)
+            Text(label, style = MaterialTheme.typography.labelSmall, color = CaptionGray, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -215,7 +222,7 @@ private fun EmptyAnalyticsState() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("DATA DEFICIT", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black, color = MediumGray)
             Spacer(Modifier.height(16.dp))
-            Text("No comparative data points available.", color = LightGray)
+            Text("No comparative data points available.", color = CaptionGray)
         }
     }
 }
