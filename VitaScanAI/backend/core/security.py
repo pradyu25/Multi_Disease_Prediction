@@ -29,6 +29,8 @@ def decode_token(token: str) -> Optional[str]:
     """Returns user_id (sub) or None if invalid/expired."""
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
-        return payload.get("sub")
-    except JWTError:
+        user_id = payload.get("sub")
+        return str(user_id) if user_id else None
+    except Exception as e:
+        print(f"JWT Decode Error: {e}")
         return None

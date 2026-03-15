@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import jwt
 
 from database import get_db
 from models.db_models import Report

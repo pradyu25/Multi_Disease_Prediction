@@ -1,11 +1,24 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from typing import Dict, Any
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
+from database import get_db
+from models.db_models import Report
 from services.llm_service import llm_service
 from routers.predict import PredictionResponse
+from core.security import decode_token
 
 router = APIRouter(prefix="/recommend", tags=["recommend"])
+security = HTTPBearer()
+
+def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+    user_id = decode_token(credentials.credentials)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return user_id
 
 class RecommendationRequest(BaseModel):
     report_id: str
@@ -20,7 +33,16 @@ class RecommendationResponse(BaseModel):
     lifestyle: str
 
 @router.post("", response_model=RecommendationResponse)
-async def get_recommendations(req: RecommendationRequest):
+async def get_recommendations(
+    req: RecommendationRequest,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db)
+):
+    # Verify ownership
+    res = await db.execute(select(Report).where(Report.report_id == req.report_id))
+    report = res.scalar_one_or_none()
+    if not report or report.user_id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized for this report")
     try:
         risks = {
             "diabetes_risk": req.predictions.diabetes_risk,

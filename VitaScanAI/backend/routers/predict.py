@@ -1,13 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
-from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Dict, Any
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from database import get_db
-from models.db_models import Prediction
+from models.db_models import Report, Prediction
 from services.ml_service import ml_service
+from core.security import decode_token
 
 router = APIRouter(prefix="/predict", tags=["predict"])
+security = HTTPBearer()
+
+def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+    user_id = decode_token(credentials.credentials)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return user_id
 
 class PredictionRequest(BaseModel):
     report_id: str
@@ -21,10 +27,24 @@ class PredictionResponse(BaseModel):
     confidence: Dict[str, float]
 
 @router.post("/disease", response_model=PredictionResponse)
-async def predict_disease(req: PredictionRequest, db: AsyncSession = Depends(get_db)):
+async def predict_disease(
+    req: PredictionRequest, 
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db)
+):
+    # Verify ownership
+    res = await db.execute(select(Report).where(Report.report_id == req.report_id))
+    report = res.scalar_one_or_none()
+    if not report or report.user_id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized for this report")
+
     try:
         # Run inference
         results = ml_service.predict(req.parameters)
+        
+        # Clear old predictions for this report
+        from sqlalchemy import delete
+        await db.execute(delete(Prediction).where(Prediction.report_id == req.report_id))
         
         # Save individual predictions to DB for accurate history
         predictions = [
