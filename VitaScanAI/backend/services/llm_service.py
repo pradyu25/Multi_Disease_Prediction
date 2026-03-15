@@ -1,5 +1,3 @@
-import torch
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 from typing import Dict, Any
 from core.config import get_settings
 
@@ -17,6 +15,8 @@ class LLMService:
     def _load_model(self):
         if not self.is_loaded:
             try:
+                import torch
+                from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
                 print(f"Loading {self.model_name}...")
                 self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
                 self.model = AutoModelForSeq2SeqLM.from_pretrained(self.model_name)
@@ -38,6 +38,7 @@ class LLMService:
             # Fallback if model failed to load
             return self._fallback_recommendations(risks)
             
+        import torch
         with torch.no_grad():
             # Construct prompt for a more professional medical AI assistant
             context = (
@@ -70,6 +71,7 @@ class LLMService:
         
     def _generate_text(self, prompt: str) -> str:
         try:
+            import torch
             inputs = self.tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True).to(self.device)
             outputs = self.model.generate(
                 **inputs, 

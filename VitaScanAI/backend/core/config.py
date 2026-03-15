@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     app_name: str = "VitaScan AI API"
     app_version: str = "1.0.0"
     debug: bool = False
+    service_role: str = "all" # Options: all, core, recommender
+    recommender_url: str = "" # URL for the recommender service
 
     # Database
     database_url: str = "postgresql+asyncpg://user:password@localhost:5432/vitascan"

@@ -11,6 +11,10 @@ from services.llm_service import llm_service
 from routers.predict import PredictionResponse
 from core.security import decode_token
 
+import httpx
+from core.config import get_settings
+
+settings = get_settings()
 router = APIRouter(prefix="/recommend", tags=["recommend"])
 security = HTTPBearer()
 
@@ -35,14 +39,35 @@ class RecommendationResponse(BaseModel):
 @router.post("", response_model=RecommendationResponse)
 async def get_recommendations(
     req: RecommendationRequest,
-    user_id: str = Depends(get_current_user_id),
+    token: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db)
 ):
+    user_id = get_current_user_id(token)
+    
     # Verify ownership
     res = await db.execute(select(Report).where(Report.report_id == req.report_id))
     report = res.scalar_one_or_none()
     if not report or report.user_id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized for this report")
+        
+    # Gateway Mode: Proxy to dedicated recommender service if role is 'core'
+    if settings.service_role == "core" and settings.recommender_url:
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    f"{settings.recommender_url.rstrip('/')}/recommend",
+                    json=req.model_dump(),
+                    headers={"Authorization": f"Bearer {token.credentials}"},
+                    timeout=60.0 # LLM can be slow
+                )
+                if response.status_code == 200:
+                    return RecommendationResponse(**response.json())
+                else:
+                    raise HTTPException(status_code=response.status_code, detail="Remote recommender error")
+        except Exception as e:
+            print(f"Proxy Error: {e}")
+            # Fallback will happen below if we don't return
+            
     try:
         risks = {
             "diabetes_risk": req.predictions.diabetes_risk,

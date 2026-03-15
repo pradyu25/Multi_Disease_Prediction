@@ -2,28 +2,48 @@ services:
   - type: web
     name: vitascan-ai-backend
     env: docker
-    region: ohio # Change as needed
-    plan: free # Use 'free' or another plan (e.g., 'starter')
+    region: ohio
+    plan: free
     dockerContext: VitaScanAI/backend
     dockerfilePath: VitaScanAI/backend/Dockerfile
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL
-        sync: false # Set this in the Render Dashboard
+        sync: false
       - key: DEBUG
         value: "false"
-      - key: SECRET_KEY
-        generateValue: true
-      - key: ALGORITHM
-        value: "HS256"
-      - key: ACCESS_TOKEN_EXPIRE_MINUTES
-        value: "1440"
+      - key: SERVICE_ROLE
+        value: "core"
+      - key: USE_LLM
+        value: "false"
+      - key: RECOMMENDER_URL
+        value: "https://vitascan-ai-recommender.onrender.com"
       - key: UPLOAD_DIR
         value: "uploads"
-      - key: HF_MODEL_NAME
-        value: "google/flan-t5-small"
+      - key: SECRET_KEY
+        generateValue: true
+
+  - type: web
+    name: vitascan-ai-recommender
+    env: docker
+    region: ohio
+    plan: free
+    dockerContext: VitaScanAI/backend
+    dockerfilePath: VitaScanAI/backend/Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DEBUG
+        value: "false"
+      - key: SERVICE_ROLE
+        value: "recommender"
       - key: USE_LLM
         value: "true"
+      - key: HF_MODEL_NAME
+        value: "google/flan-t5-small"
+      - key: SECRET_KEY
+        sync: true # Should match core SECRET_KEY
     # Mount a disk for local uploads if not using S3
     # Use 'free' plan doesn't support disks. If using free, uploads will be lost on restart.
     # disk:
