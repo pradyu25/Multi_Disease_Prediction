@@ -57,7 +57,15 @@ async def init_db():
         print("Database tables initialized successfully.")
     except Exception as e:
         print(f"DATABASE ERROR: {e}")
-        if "gaierror" in str(e):
-            print("CRITICAL: Hostname could not be resolved. Please check your DATABASE_URL.")
-            print("If using Render, ensure you are using the EXTERNAL Database URL if regions differ.")
+        if "gaierror" in str(e) or "Name or service not known" in str(e):
+            print("\n" + "!"*60)
+            print("CRITICAL: DATABASE HOSTNAME UNREACHABLE")
+            print("!"*60)
+            print("This usually happens because:")
+            print("1. Your Web Service and Database are in DIFFERENT REGIONS.")
+            print("   EXAMPLE: Web Service is in 'Ohio' but DB is in 'Oregon'.")
+            print("2. You used the 'Internal URL' across regions.")
+            print("\nSOLUTION:")
+            print("-> Use the 'EXTERNAL DATABASE URL' in your 'vitascan-shared' group.")
+            print("!"*60 + "\n")
         raise e
