@@ -72,16 +72,29 @@ async def get_history(
     reports = []
     for r in reports_orm:
         pred_res = await db.execute(select(Prediction).where(Prediction.report_id == r.report_id))
-        p = pred_res.scalar_one_or_none()
+        all_preds = pred_res.scalars().all()
         
         pred_summary = None
-        if p:
-            # Map single score back to multiple for the frontend structure
+        if all_preds:
+            # Map predictions to dictionary for easy lookup
+            p_map = {p.disease: p.risk_score for p in all_preds}
+            
+            # If we have individual records (New system)
+            diabetes = p_map.get("Diabetes")
+            anemia = p_map.get("Anemia")
+            heart = p_map.get("Heart Disease")
+            
+            # Fallback for old records or partial data
+            if diabetes is None and anemia is None and heart is None:
+                # Might be an old 'Multiple' record
+                multiple = p_map.get("Multiple", 0)
+                diabetes, anemia, heart = multiple, max(0, multiple-10), max(0, multiple-20)
+            
             pred_summary = PredictionSummary(
-                report_id=p.report_id,
-                diabetes_risk=p.risk_score if p.disease == "Multiple" else 0, # Mock logic
-                anemia_risk=p.risk_score - 10 if p.disease == "Multiple" else 0,
-                heart_disease_risk=p.risk_score - 20 if p.disease == "Multiple" else 0,
+                report_id=r.report_id,
+                diabetes_risk=diabetes or 0,
+                anemia_risk=anemia or 0,
+                heart_disease_risk=heart or 0,
             )
             
         reports.append(ReportSummary(

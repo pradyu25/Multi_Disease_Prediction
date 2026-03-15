@@ -26,17 +26,13 @@ async def predict_disease(req: PredictionRequest, db: AsyncSession = Depends(get
         # Run inference
         results = ml_service.predict(req.parameters)
         
-        # Save to DB
-        prediction = Prediction(
-            report_id=req.report_id,
-            disease="Multiple",
-            risk_score=max(
-                results["diabetes_risk"], 
-                results["anemia_risk"], 
-                results["heart_disease_risk"]
-            )
-        )
-        db.add(prediction)
+        # Save individual predictions to DB for accurate history
+        predictions = [
+            Prediction(report_id=req.report_id, disease="Diabetes", risk_score=results["diabetes_risk"]),
+            Prediction(report_id=req.report_id, disease="Anemia", risk_score=results["anemia_risk"]),
+            Prediction(report_id=req.report_id, disease="Heart Disease", risk_score=results["heart_disease_risk"])
+        ]
+        db.add_all(predictions)
         await db.commit()
         
         return PredictionResponse(

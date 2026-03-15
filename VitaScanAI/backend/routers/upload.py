@@ -38,6 +38,14 @@ async def upload_report(
     if auth_user_id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized to upload for this user")
 
+    # Create the report record first to get the unique report_id
+    new_report = Report(
+        user_id=user_id,
+        file_url="pending", # Temporary placeholder
+        file_type=file.content_type
+    )
+    db.add(new_report)
+
     # Save file with unique ID
     os.makedirs(settings.upload_dir, exist_ok=True)
     file_ext = os.path.splitext(file.filename)[1]
@@ -47,6 +55,7 @@ async def upload_report(
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
         
+    # Update with actual path and commit
     file_url = f"uploads/{unique_filename}"
     new_report.file_url = file_url
     await db.commit()

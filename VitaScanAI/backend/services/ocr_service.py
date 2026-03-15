@@ -3,6 +3,7 @@ import pdfplumber
 import docx
 import pytesseract
 from PIL import Image
+from pdf2image import convert_from_path
 from typing import Dict, Optional, Tuple
 from core.config import get_settings
 
@@ -26,11 +27,19 @@ async def extract_text_from_file(file_path: str, mime_type: str) -> str:
     text = ""
     try:
         if mime_type == "application/pdf":
+            # Try normal text extraction first
             with pdfplumber.open(file_path) as pdf:
                 for page in pdf.pages:
                     page_text = page.extract_text()
                     if page_text:
                         text += page_text + "\n"
+            
+            # Fallback for scanned PDFs (no text layer)
+            if not text.strip():
+                print(f"Scanned PDF detected for {file_path}. Using OCR fallback...")
+                images = convert_from_path(file_path)
+                for img in images:
+                    text += pytesseract.image_to_string(img) + "\n"
         elif "wordprocessingml.document" in mime_type:
             doc = docx.Document(file_path)
             for para in doc.paragraphs:
