@@ -8,9 +8,7 @@ engine = create_async_engine(
     settings.database_url_async,
     echo=settings.debug,
     pool_pre_ping=True,
-    connect_args={
-        "ssl": "prefer" # Try SSL first, but allow non-SSL if server doesn't support it
-    } if "postgresql" in settings.database_url_async else {}
+    connect_args={"ssl": True} if "postgresql" in settings.database_url_async else {}
 )
 
 AsyncSessionLocal = async_sessionmaker(

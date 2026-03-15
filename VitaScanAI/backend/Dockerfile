@@ -19,8 +19,6 @@ COPY requirements.txt .
 # Use no-cache-dir to reduce image size. 
 # We increase timeout because PyTorch/Transformers can be large
 RUN pip install --no-cache-dir --default-timeout=100 -r requirements.txt
-RUN pip install PyJWT==2.10.1
-
 # Copy source code
 COPY . .
 
