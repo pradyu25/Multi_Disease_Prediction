@@ -38,16 +38,28 @@ fun DashboardScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("VitaScan AI", fontWeight = FontWeight.Bold) },
+                title = { 
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Surface(
+                            modifier = Modifier.size(32.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            color = PureBlack
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text("V", color = PureWhite, style = MaterialTheme.typography.titleSmall)
+                            }
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Text("VITASCAN AI", style = MaterialTheme.typography.titleMedium, 
+                            fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MedicalBlue,
-                    titleContentColor = Color.White,
-                    actionIconContentColor = Color.White
+                    containerColor = GhostWhite,
+                    titleContentColor = PureBlack,
+                    actionIconContentColor = PureBlack
                 ),
                 actions = {
-                    IconButton(onClick = onNavigateToAnalytics) {
-                        Icon(Icons.Default.Analytics, "Analytics")
-                    }
                     IconButton(onClick = {
                         viewModel.logout()
                         onLogout()
@@ -58,31 +70,42 @@ fun DashboardScreen(
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
+            LargeFloatingActionButton(
                 onClick            = onNavigateToUpload,
-                containerColor     = MedicalBlue,
-                contentColor       = Color.White,
-                icon               = { Icon(Icons.Default.Upload, "Upload") },
-                text               = { Text("Upload Report") }
-            )
+                containerColor     = PureBlack,
+                contentColor       = PureWhite,
+                shape              = RoundedCornerShape(24.dp)
+            ) {
+                Row(Modifier.padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Add, "Upload")
+                    Spacer(Modifier.width(8.dp))
+                    Text("NEW SCAN", fontWeight = FontWeight.Bold)
+                }
+            }
         }
     ) { padding ->
         if (state.isLoading && state.recentReports.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator(color = MedicalBlue)
-                    Spacer(Modifier.height(12.dp))
-                    Text("Loading your health data…", color = NeutralGray)
-                }
+                CircularProgressIndicator(color = PureBlack, strokeWidth = 1.dp)
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.fillMaxSize().background(GhostWhite).padding(padding),
+                contentPadding = PaddingValues(20.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                // Greeting header
-                item { GreetingHeader(name = state.userName) }
+                // Greeting and Logo placeholder
+                item {
+                    Column {
+                        Text("Vitascan Analytics", style = MaterialTheme.typography.labelMedium, color = MediumGray, letterSpacing = 1.sp)
+                        Text("Hello, ${state.userName}", style = MaterialTheme.typography.displayMedium)
+                    }
+                }
+
+                // Trends Banner (Prominent Navigation)
+                item {
+                    TrendsBanner(onClick = onNavigateToAnalytics)
+                }
 
                 // Risk score cards
                 item {
@@ -91,120 +114,55 @@ fun DashboardScreen(
                     } ?: EmptyRiskCard(onNavigateToUpload)
                 }
 
-                // Quick Actions
-                item {
-                    Text("Quick Actions", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                }
+                // Recent reports Header
                 item {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        QuickActionButton(
-                            title = "New Scan",
-                            subtitle = "Upload Report",
-                            icon = Icons.Default.AddPhotoAlternate,
-                            color = MedicalBlue,
-                            modifier = Modifier.weight(1f),
-                            onClick = onNavigateToUpload
-                        )
-                        QuickActionButton(
-                            title = "History",
-                            subtitle = "View Trends",
-                            icon = Icons.Default.Insights,
-                            color = RiskMedium,
-                            modifier = Modifier.weight(1f),
-                            onClick = onNavigateToAnalytics
-                        )
-                    }
-                }
-
-                // Recent reports
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
+                        verticalAlignment = Alignment.Bottom,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Recent Analysis", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("LATEST ANALYSIS", style = MaterialTheme.typography.labelLarge, 
+                             fontWeight = FontWeight.Black, color = PureBlack, letterSpacing = 1.sp)
                         TextButton(onClick = onNavigateToAnalytics) {
-                            Text("See all", color = MedicalBlue)
+                            Text("HISTORY", style = MaterialTheme.typography.labelSmall, color = MediumGray)
                         }
                     }
                 }
+
                 if (state.recentReports.isEmpty()) {
-                    item {
-                        EmptyReportsCard(onNavigateToUpload)
-                    }
+                    item { EmptyReportsCard(onNavigateToUpload) }
                 } else {
                     items(state.recentReports) { report ->
                         ReportCard(report = report, onClick = { onNavigateToReport(report.reportId) })
                     }
                 }
-                item { Spacer(Modifier.height(80.dp)) }
+                
+                item { Spacer(Modifier.height(100.dp)) }
             }
         }
     }
 }
 
 @Composable
-private fun GreetingHeader(name: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Brush.horizontalGradient(listOf(MedicalBlue, MedicalBlueLight)))
-            .padding(20.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            Modifier
-                .size(56.dp)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.2f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(Icons.Default.Person, null, tint = Color.White, modifier = Modifier.size(32.dp))
-        }
-        Spacer(Modifier.width(16.dp))
-        Column {
-            Text("Hello, $name 👋", style = MaterialTheme.typography.titleLarge,
-                color = Color.White, fontWeight = FontWeight.Bold)
-            Text("Track your health with AI", style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(0.8f))
-        }
-    }
-}
-
-@Composable
-private fun QuickActionButton(
-    title: String,
-    subtitle: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    color: Color,
-    modifier: Modifier,
-    onClick: () -> Unit
-) {
+private fun TrendsBanner(onClick: () -> Unit) {
     Card(
         onClick = onClick,
-        modifier = modifier.height(100.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceCard),
-        elevation = CardDefaults.cardElevation(2.dp)
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = PureBlack),
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(12.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
-            Box(
-                Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(color.copy(alpha = 0.1f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(icon, null, tint = color, modifier = Modifier.size(20.dp))
+        Box(Modifier.fillMaxWidth().padding(24.dp)) {
+            Column(Modifier.align(Alignment.CenterStart)) {
+                Text("Health Analytics", style = MaterialTheme.typography.titleMedium, color = GhostWhite, fontWeight = FontWeight.Bold)
+                Text("View Parameter Trends", style = MaterialTheme.typography.bodySmall, color = LightGray)
             }
-            Spacer(Modifier.height(8.dp))
-            Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-            Text(subtitle, style = MaterialTheme.typography.labelSmall, color = NeutralGray)
+            Icon(
+                Icons.Default.TrendingUp, 
+                contentDescription = null, 
+                tint = PureWhite, 
+                modifier = Modifier.size(40.dp).align(Alignment.CenterEnd).alpha(0.3f)
+            )
         }
     }
 }
@@ -212,12 +170,12 @@ private fun QuickActionButton(
 @Composable
 private fun RiskScoreSection(pred: PredictionEntity) {
     Column {
-        Text("Latest Health Risk",
-            style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(12.dp))
+        Text("CLINICAL RISK ASSESSMENT", style = MaterialTheme.typography.labelLarge, 
+             fontWeight = FontWeight.Black, color = PureBlack, letterSpacing = 1.sp)
+        Spacer(Modifier.height(16.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             RiskCard(label = "Diabetes",   risk = pred.diabetesRisk,     icon = Icons.Default.WaterDrop,    modifier = Modifier.weight(1f))
             RiskCard(label = "Heart",      risk = pred.heartDiseaseRisk, icon = Icons.Default.Favorite,     modifier = Modifier.weight(1f))
@@ -228,94 +186,74 @@ private fun RiskScoreSection(pred: PredictionEntity) {
 
 @Composable
 private fun RiskCard(label: String, risk: Int, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier) {
-    val color = risk.toRiskColor()
-    Card(
-        modifier  = modifier,
-        shape     = RoundedCornerShape(16.dp),
-        colors    = CardDefaults.cardColors(containerColor = SurfaceCard),
-        elevation = CardDefaults.cardElevation(4.dp)
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(24.dp),
+        color = PureWhite,
+        border = BorderStroke(1.dp, BorderGray),
+        shadowElevation = 2.dp
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
-                Modifier.size(42.dp).clip(CircleShape).background(color.copy(alpha = 0.15f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(icon, null, tint = color, modifier = Modifier.size(22.dp))
-            }
-            Spacer(Modifier.height(8.dp))
-            Text("$risk%", style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold, color = color)
-            Text(label, style = MaterialTheme.typography.labelSmall, color = NeutralGray)
-            Text(risk.toRiskLabel(), style = MaterialTheme.typography.labelSmall,
-                color = color, fontWeight = FontWeight.Medium)
-        }
-    }
-}
-
-@Composable
-private fun EmptyRiskCard(onUpload: () -> Unit) {
-    Card(
-        modifier  = Modifier.fillMaxWidth(),
-        shape     = RoundedCornerShape(16.dp),
-        colors    = CardDefaults.cardColors(containerColor = MedicalBlueSurface)
-    ) {
-        Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(Icons.Default.MonitorHeart, null, tint = MedicalBlue, modifier = Modifier.size(48.dp))
+            Icon(icon, null, tint = PureBlack, modifier = Modifier.size(24.dp))
             Spacer(Modifier.height(12.dp))
-            Text("No Health Data Yet", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Text("Upload a medical report to see your risk scores", color = NeutralGray,
-                style = MaterialTheme.typography.bodySmall)
-            Spacer(Modifier.height(16.dp))
-            Button(onClick = onUpload, colors = ButtonDefaults.buttonColors(containerColor = MedicalBlue)) {
-                Icon(Icons.Default.Upload, null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("Upload Report")
-            }
+            Text("${risk}%", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
+            Text(label.uppercase(), style = MaterialTheme.typography.labelSmall, color = MediumGray, fontWeight = FontWeight.Bold)
         }
     }
 }
 
 @Composable
 private fun ReportCard(report: ReportEntity, onClick: () -> Unit) {
-    Card(
-        modifier  = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape     = RoundedCornerShape(12.dp),
-        colors    = CardDefaults.cardColors(containerColor = SurfaceCard),
-        elevation = CardDefaults.cardElevation(2.dp)
+    Surface(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        color = PureWhite,
+        border = BorderStroke(1.dp, BorderGray)
     ) {
-        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
-                Modifier.size(44.dp).clip(RoundedCornerShape(10.dp)).background(MedicalBlueSurface),
+                Modifier.size(48.dp).background(ElevationGray, RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Description, null, tint = MedicalBlue)
+                Icon(Icons.Default.InsertDriveFile, null, tint = PureBlack)
             }
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
-                Text("Report ${report.reportId.take(8)}…",
-                    style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                Text(report.uploadDate.take(10),
-                    style = MaterialTheme.typography.bodySmall, color = NeutralGray)
+                Text("SCAN ANALYSIS", style = MaterialTheme.typography.labelSmall, color = MediumGray, fontWeight = FontWeight.Bold)
+                Text("Report ${report.reportId.take(6).uppercase()}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(report.uploadDate.take(10), style = MaterialTheme.typography.bodySmall, color = MediumGray)
             }
-            Icon(Icons.Default.ChevronRight, null, tint = NeutralGray)
+            Icon(Icons.Default.ArrowForwardIos, null, tint = LightGray, modifier = Modifier.size(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun EmptyRiskCard(onUpload: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        color = ElevationGray
+    ) {
+        Column(Modifier.padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("DATA COLLECTION REQUIRED", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black)
+            Spacer(Modifier.height(16.dp))
+            Text("No clinical reports detected. Start scanning to see real-time health trends.", 
+                color = MediumGray, style = MaterialTheme.typography.bodyMedium, 
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center)
         }
     }
 }
 
 @Composable
 private fun EmptyReportsCard(onUpload: () -> Unit) {
-    Card(
-        modifier  = Modifier.fillMaxWidth(),
-        shape     = RoundedCornerShape(12.dp),
-        colors    = CardDefaults.cardColors(containerColor = NeutralGrayLight)
+    Box(
+        modifier = Modifier.fillMaxWidth().height(100.dp).background(ElevationGray, RoundedCornerShape(16.dp)),
+        contentAlignment = Alignment.Center
     ) {
-        Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(Icons.Default.FolderOpen, null, tint = NeutralGray, modifier = Modifier.size(40.dp))
-            Spacer(Modifier.height(8.dp))
-            Text("No reports yet", style = MaterialTheme.typography.bodyMedium, color = NeutralGray)
-        }
+        Text("HISTORY EMPTY", style = MaterialTheme.typography.labelSmall, color = MediumGray, fontWeight = FontWeight.Black)
     }
 }

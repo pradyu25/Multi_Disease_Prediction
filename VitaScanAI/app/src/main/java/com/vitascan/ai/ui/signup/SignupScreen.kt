@@ -35,79 +35,94 @@ fun SignupScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(HealthGreenDark, HealthGreen, HealthGreenLight)))
+            .background(GhostWhite)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(Icons.Default.PersonAdd, null, tint = Color.White, modifier = Modifier.size(64.dp))
-            Spacer(Modifier.height(8.dp))
-            Text("Create Account", style = MaterialTheme.typography.headlineMedium, color = Color.White, fontWeight = FontWeight.Bold)
-            Text("Join VitaScan AI today", style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(0.75f))
-            Spacer(Modifier.height(32.dp))
+            Text(
+                "REGISTRATION",
+                style = MaterialTheme.typography.labelSmall,
+                color = MediumGray,
+                letterSpacing = 2.sp,
+                fontWeight = FontWeight.Black
+            )
+            Text(
+                "Create Profile",
+                style = MaterialTheme.typography.displayMedium,
+                color = PureBlack,
+                fontWeight = FontWeight.Black,
+                letterSpacing = (-1).sp
+            )
+            
+            Spacer(Modifier.height(40.dp))
 
-            Card(
-                modifier  = Modifier.fillMaxWidth(),
-                shape     = RoundedCornerShape(24.dp),
-                colors    = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(8.dp)
-            ) {
-                Column(Modifier.padding(28.dp)) {
-                    listOf(
-                        Triple(state.name, viewModel::onNameChange, "Full Name") to Icons.Default.Person,
-                        Triple(state.email, viewModel::onEmailChange, "Email Address") to Icons.Default.Email,
-                        Triple(state.password, viewModel::onPasswordChange, "Password") to Icons.Default.Lock,
-                        Triple(state.confirmPassword, viewModel::onConfirmPasswordChange, "Confirm Password") to Icons.Default.Lock
-                    ).forEachIndexed { index, (triple, icon) ->
-                        val (value, onChange, label) = triple
-                        val isPassword = index >= 2
-                        OutlinedTextField(
-                            value         = value,
-                            onValueChange = onChange,
-                            label         = { Text(label) },
-                            leadingIcon   = { Icon(icon, null, tint = HealthGreen) },
-                            visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Email
-                            ),
-                            singleLine    = true,
-                            modifier      = Modifier.fillMaxWidth(),
-                            shape         = RoundedCornerShape(12.dp)
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                listOf(
+                    Triple(state.name, viewModel::onNameChange, "Full Name"),
+                    Triple(state.email, viewModel::onEmailChange, "Email Address"),
+                    Triple(state.password, viewModel::onPasswordChange, "Password"),
+                    Triple(state.confirmPassword, viewModel::onConfirmPasswordChange, "Confirm Password")
+                ).forEachIndexed { index, triple ->
+                    val (value, onChange, label) = triple
+                    val isPassword = index >= 2
+                    OutlinedTextField(
+                        value         = value,
+                        onValueChange = onChange,
+                        label         = { Text(label, style = MaterialTheme.typography.labelMedium) },
+                        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Email
+                        ),
+                        singleLine    = true,
+                        modifier      = Modifier.fillMaxWidth(),
+                        shape         = RoundedCornerShape(16.dp),
+                        colors        = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor   = PureBlack,
+                            unfocusedBorderColor = BorderGray,
+                            focusedLabelColor    = PureBlack
                         )
-                        if (index < 3) Spacer(Modifier.height(12.dp))
-                    }
-
-                    AnimatedVisibility(state.error != null) {
-                        state.error?.let { err ->
-                            Spacer(Modifier.height(8.dp))
-                            Text(err, color = RiskHigh, style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-
-                    Spacer(Modifier.height(24.dp))
-                    Button(
-                        onClick   = viewModel::signup,
-                        enabled   = !state.isLoading,
-                        modifier  = Modifier.fillMaxWidth().height(52.dp),
-                        shape     = RoundedCornerShape(12.dp),
-                        colors    = ButtonDefaults.buttonColors(containerColor = HealthGreen)
-                    ) {
-                        if (state.isLoading) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-                        else Text("Create Account", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                    }
-
-                    Spacer(Modifier.height(16.dp))
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                        Text("Already have an account? ", color = NeutralGray)
-                        Text("Sign In", color = HealthGreen, fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.clickable(onClick = onNavigateToLogin))
-                    }
+                    )
                 }
+            }
+
+            AnimatedVisibility(state.error != null) {
+                state.error?.let { err ->
+                    Text(err, color = PureBlack, 
+                         style = MaterialTheme.typography.bodySmall,
+                         modifier = Modifier.padding(top = 16.dp))
+                }
+            }
+
+            Spacer(Modifier.height(40.dp))
+
+            Button(
+                onClick   = viewModel::signup,
+                enabled   = !state.isLoading,
+                modifier  = Modifier.fillMaxWidth().height(60.dp),
+                shape     = RoundedCornerShape(16.dp),
+                colors    = ButtonDefaults.buttonColors(containerColor = PureBlack)
+            ) {
+                if (state.isLoading) CircularProgressIndicator(color = PureWhite, modifier = Modifier.size(24.dp), strokeWidth = 1.dp)
+                else Text("CREATE ACCOUNT", fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+            }
+
+            Spacer(Modifier.height(24.dp))
+            
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Text("ALREADY REGISTERED? ", color = MediumGray, style = MaterialTheme.typography.labelSmall)
+                Text(
+                    "LOG IN", 
+                    color = PureBlack, 
+                    fontWeight = FontWeight.Black,
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.clickable(onClick = onNavigateToLogin)
+                )
             }
         }
     }

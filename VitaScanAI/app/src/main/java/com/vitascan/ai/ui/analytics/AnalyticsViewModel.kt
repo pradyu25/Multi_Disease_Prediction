@@ -7,6 +7,7 @@ import com.vitascan.ai.data.repository.ReportRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
+import com.vitascan.ai.data.local.dao.PredictionWithDate
 
 data class AnalyticsUiState(
     val parameterData: Map<String, List<Pair<String, Double>>> = emptyMap(), // param → list of (date, value)
@@ -20,33 +21,46 @@ class AnalyticsViewModel @Inject constructor(
 ) : ViewModel() {
 
     val uiState: StateFlow<AnalyticsUiState> =
-        reportRepo.getAllMedicalValuesWithDate()
-            .map { rows -> buildChartData(rows) }
-            .map { data ->
-                AnalyticsUiState(
-                    parameterData = data,
-                    selectedParameter = data.keys.firstOrNull() ?: "glucose",
-                    isLoading = false
-                )
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = AnalyticsUiState()
+        combine(
+            reportRepo.getAllMedicalValuesWithDate(),
+            reportRepo.getPredictionsWithDate()
+        ) { values, predictions ->
+            val data = buildChartData(values, predictions)
+            AnalyticsUiState(
+                parameterData = data,
+                selectedParameter = if (data.containsKey("diabetes risk")) "diabetes risk" 
+                                   else data.keys.firstOrNull() ?: "glucose",
+                isLoading = false
             )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = AnalyticsUiState()
+        )
 
     fun selectParameter(param: String) {
-        // Handled via UI-level copy; viewModel exposes derived state
+        // Derived from derived state (handled in Screen state or via copy)
     }
 
-    private fun buildChartData(rows: List<MedicalValueWithDate>): Map<String, List<Pair<String, Double>>> {
-        return rows
-            .filter { it.value != null }
-            .groupBy { it.parameterName }
-            .mapValues { (_, entries) ->
-                entries
-                    .sortedBy { it.uploadDate }
-                    .map { it.uploadDate to it.value!! }
-            }
+    private fun buildChartData(
+        rows: List<com.vitascan.ai.data.local.dao.MedicalValueWithDate>,
+        preds: List<com.vitascan.ai.data.local.dao.PredictionWithDate>
+    ): Map<String, List<Pair<String, Double>>> {
+        val result = mutableMapOf<String, MutableList<Pair<String, Double>>>()
+        
+        // Lab values
+        rows.filter { it.value != null }.forEach {
+            result.getOrPut(it.parameterName) { mutableListOf() }
+                .add(it.uploadDate to it.value!!)
+        }
+        
+        // Risk scores (Virtual parameters)
+        if (preds.isNotEmpty()) {
+            result["diabetes risk"] = preds.map { it.uploadDate to it.prediction.diabetesRisk.toDouble() }.toMutableList()
+            result["heart risk"] = preds.map { it.uploadDate to it.prediction.heartDiseaseRisk.toDouble() }.toMutableList()
+            result["anemia risk"] = preds.map { it.uploadDate to it.prediction.anemiaRisk.toDouble() }.toMutableList()
+        }
+
+        return result.mapValues { (_, v) -> v.sortedBy { it.first } }
     }
 }

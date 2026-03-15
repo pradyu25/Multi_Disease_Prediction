@@ -123,4 +123,7 @@ class ReportRepository @Inject constructor(
 
     fun getAllMedicalValuesWithDate(): Flow<List<com.vitascan.ai.data.local.dao.MedicalValueWithDate>> =
         medicalValueDao.getAllValuesWithDate()
+
+    fun getPredictionsWithDate(): Flow<List<PredictionWithDate>> =
+        predictionDao.getAllPredictionsWithDate()
 }

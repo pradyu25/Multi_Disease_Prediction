@@ -40,165 +40,135 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(MedicalBlueDark, MedicalBlue, MedicalBlueLight)
-                )
-            )
+            .background(GhostWhite)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center
         ) {
-            // Logo / branding
-            Icon(
-                imageVector = Icons.Default.MonitorHeart,
-                contentDescription = "VitaScan AI",
-                tint = Color.White,
-                modifier = Modifier.size(72.dp)
-            )
-            Spacer(Modifier.height(12.dp))
+            // Minimalist Logo / branding
+            Surface(
+                modifier = Modifier.size(64.dp),
+                shape = RoundedCornerShape(16.dp),
+                color = PureBlack
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text("V", color = PureWhite, style = MaterialTheme.typography.displayMedium)
+                }
+            }
+            
+            Spacer(Modifier.height(32.dp))
+            
             Text(
-                "VitaScan AI",
-                style = MaterialTheme.typography.headlineLarge,
-                color = Color.White,
-                fontWeight = FontWeight.Bold
+                "VITASCAN AI",
+                style = MaterialTheme.typography.displayMedium,
+                color = PureBlack,
+                fontWeight = FontWeight.Black,
+                letterSpacing = (-1).sp
             )
             Text(
-                "Medical Intelligence Platform",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.75f)
+                "PRECISION DIAGNOSTICS PLATFORM",
+                style = MaterialTheme.typography.labelSmall,
+                color = MediumGray,
+                letterSpacing = 1.sp
             )
+            
+            Spacer(Modifier.height(48.dp))
+
+            // Credentials
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                OutlinedTextField(
+                    value        = state.email,
+                    onValueChange = viewModel::onEmailChange,
+                    label        = { Text("Email", style = MaterialTheme.typography.labelMedium) },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction    = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+                    singleLine  = true,
+                    modifier    = Modifier.fillMaxWidth(),
+                    shape       = RoundedCornerShape(16.dp),
+                    colors      = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor   = PureBlack,
+                        unfocusedBorderColor = BorderGray,
+                        focusedLabelColor    = PureBlack
+                    )
+                )
+
+                OutlinedTextField(
+                    value        = state.password,
+                    onValueChange = viewModel::onPasswordChange,
+                    label        = { Text("Password", style = MaterialTheme.typography.labelMedium) },
+                    visualTransformation = if (state.passwordVisible) VisualTransformation.None
+                                           else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction    = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(onDone = {
+                        focusManager.clearFocus()
+                        viewModel.login()
+                    }),
+                    singleLine  = true,
+                    modifier    = Modifier.fillMaxWidth(),
+                    shape       = RoundedCornerShape(16.dp),
+                    colors      = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor   = PureBlack,
+                        unfocusedBorderColor = BorderGray,
+                        focusedLabelColor    = PureBlack
+                    )
+                )
+            }
+
+            // Error
+            AnimatedVisibility(visible = state.error != null) {
+                state.error?.let {
+                    Text(it, color = PureBlack, 
+                         style = MaterialTheme.typography.bodySmall,
+                         modifier = Modifier.padding(top = 16.dp))
+                }
+            }
+
             Spacer(Modifier.height(40.dp))
 
-            // Card
-            Card(
-                modifier  = Modifier.fillMaxWidth(),
-                shape     = RoundedCornerShape(24.dp),
-                colors    = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            // Login button
+            Button(
+                onClick   = viewModel::login,
+                modifier  = Modifier.fillMaxWidth().height(60.dp),
+                enabled   = !state.isLoading,
+                shape     = RoundedCornerShape(16.dp),
+                colors    = ButtonDefaults.buttonColors(containerColor = PureBlack)
             ) {
-                Column(Modifier.padding(28.dp)) {
-                    Text(
-                        "Welcome Back",
-                        style     = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color     = NeutralGrayDark
+                if (state.isLoading) {
+                    CircularProgressIndicator(
+                        color  = PureWhite,
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 1.dp
                     )
-                    Text(
-                        "Sign in to your account",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = NeutralGray
-                    )
-                    Spacer(Modifier.height(24.dp))
-
-                    // Email
-                    OutlinedTextField(
-                        value        = state.email,
-                        onValueChange = viewModel::onEmailChange,
-                        label        = { Text("Email Address") },
-                        leadingIcon  = { Icon(Icons.Default.Email, null, tint = MedicalBlue) },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
-                            imeAction    = ImeAction.Next
-                        ),
-                        keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
-                        singleLine  = true,
-                        modifier    = Modifier.fillMaxWidth(),
-                        shape       = RoundedCornerShape(12.dp)
-                    )
-                    Spacer(Modifier.height(16.dp))
-
-                    // Password
-                    OutlinedTextField(
-                        value        = state.password,
-                        onValueChange = viewModel::onPasswordChange,
-                        label        = { Text("Password") },
-                        leadingIcon  = { Icon(Icons.Default.Lock, null, tint = MedicalBlue) },
-                        trailingIcon = {
-                            IconButton(onClick = viewModel::togglePasswordVisibility) {
-                                Icon(
-                                    if (state.passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                    null
-                                )
-                            }
-                        },
-                        visualTransformation = if (state.passwordVisible) VisualTransformation.None
-                                               else PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction    = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(onDone = {
-                            focusManager.clearFocus()
-                            viewModel.login()
-                        }),
-                        singleLine  = true,
-                        modifier    = Modifier.fillMaxWidth(),
-                        shape       = RoundedCornerShape(12.dp)
-                    )
-
-                    // Error
-                    AnimatedVisibility(visible = state.error != null) {
-                        state.error?.let {
-                            Spacer(Modifier.height(8.dp))
-                            Card(
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.errorContainer
-                                ),
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
-                                Row(
-                                    Modifier.padding(12.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(Icons.Default.Warning, null, tint = RiskHigh)
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(it, color = RiskHigh, style = MaterialTheme.typography.bodySmall)
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(Modifier.height(24.dp))
-
-                    // Login button
-                    Button(
-                        onClick   = viewModel::login,
-                        modifier  = Modifier.fillMaxWidth().height(52.dp),
-                        enabled   = !state.isLoading,
-                        shape     = RoundedCornerShape(12.dp),
-                        colors    = ButtonDefaults.buttonColors(containerColor = MedicalBlue)
-                    ) {
-                        if (state.isLoading) {
-                            CircularProgressIndicator(
-                                color  = Color.White,
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-
-                    Spacer(Modifier.height(16.dp))
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text("Don't have an account? ", color = NeutralGray)
-                        Text(
-                            "Sign Up",
-                            color      = MedicalBlue,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier   = Modifier.clickable(onClick = onNavigateToSignup)
-                        )
-                    }
+                } else {
+                    Text("SECURE LOGIN", fontWeight = FontWeight.Black, letterSpacing = 2.sp)
                 }
+            }
+
+            Spacer(Modifier.height(24.dp))
+            
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text("NEEDS AN ACCOUNT? ", color = MediumGray, style = MaterialTheme.typography.labelSmall)
+                Text(
+                    "REGISTER",
+                    color      = PureBlack,
+                    fontWeight = FontWeight.Black,
+                    style      = MaterialTheme.typography.labelSmall,
+                    modifier   = Modifier.clickable(onClick = onNavigateToSignup)
+                )
             }
         }
     }

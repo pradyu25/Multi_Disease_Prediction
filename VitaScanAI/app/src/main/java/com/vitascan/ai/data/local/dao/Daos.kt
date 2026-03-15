@@ -50,9 +50,19 @@ interface PredictionDao {
     @Query("SELECT * FROM predictions WHERE reportId = :reportId")
     suspend fun getPredictionForReport(reportId: String): PredictionEntity?
 
-    @Query("SELECT * FROM predictions")
-    fun getAllPredictions(): Flow<List<PredictionEntity>>
+    @Query("""
+        SELECT p.*, r.uploadDate
+        FROM predictions p
+        INNER JOIN reports r ON p.reportId = r.reportId
+        ORDER BY r.uploadDate DESC
+    """)
+    fun getAllPredictionsWithDate(): Flow<List<PredictionWithDate>>
 }
+
+data class PredictionWithDate(
+    @Embedded val prediction: PredictionEntity,
+    val uploadDate: String
+)
 
 @Dao
 interface RecommendationDao {

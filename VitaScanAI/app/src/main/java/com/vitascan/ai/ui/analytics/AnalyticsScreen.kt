@@ -32,47 +32,55 @@ fun AnalyticsScreen(
     var selectedParam by remember { mutableStateOf(state.selectedParameter) }
 
     LaunchedEffect(state.selectedParameter) {
-        if (selectedParam.isEmpty()) selectedParam = state.selectedParameter
+        if (selectedParam.isEmpty() || selectedParam == "glucose") selectedParam = state.selectedParameter
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Health Trends", fontWeight = FontWeight.Bold) },
+                title = { Text("HEALTH TRENDS", style = MaterialTheme.typography.titleMedium, 
+                             fontWeight = FontWeight.Black, letterSpacing = 2.sp) },
                 navigationIcon = {
                     IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, null) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MedicalBlue, titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
+                    containerColor = GhostWhite, titleContentColor = PureBlack,
+                    navigationIconContentColor = PureBlack
                 )
             )
         }
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.fillMaxSize().background(GhostWhite).padding(padding).padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             if (state.isLoading) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = MedicalBlue)
+                    CircularProgressIndicator(color = PureBlack, strokeWidth = 1.dp)
                 }
             } else if (state.parameterData.isEmpty()) {
                 EmptyAnalyticsState()
             } else {
-                Text("Track Parameter Trends",
-                    style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text("Select Parameter", style = MaterialTheme.typography.labelLarge, 
+                     fontWeight = FontWeight.Black, color = PureBlack, letterSpacing = 1.sp)
 
                 // Parameter selector chips
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(state.parameterData.keys.toList()) { param ->
                         FilterChip(
                             selected  = param == selectedParam,
                             onClick   = { selectedParam = param },
-                            label     = { Text(param.replaceFirstChar { it.uppercase() }) },
+                            label     = { Text(param.uppercase(), style = MaterialTheme.typography.labelSmall) },
+                            shape     = RoundedCornerShape(12.dp),
                             colors    = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MedicalBlue,
-                                selectedLabelColor     = Color.White
+                                selectedContainerColor = PureBlack,
+                                selectedLabelColor     = PureWhite,
+                                containerColor         = PureWhite,
+                                labelColor             = MediumGray
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                borderColor = if (param == selectedParam) PureBlack else BorderGray,
+                                borderWidth = 1.dp
                             )
                         )
                     }
@@ -81,37 +89,38 @@ fun AnalyticsScreen(
                 // Line chart
                 val data = state.parameterData[selectedParam] ?: emptyList()
                 if (data.size >= 2) {
-                    Card(
-                        modifier  = Modifier.fillMaxWidth().height(320.dp),
-                        shape     = RoundedCornerShape(16.dp),
-                        elevation = CardDefaults.cardElevation(4.dp),
-                        colors    = CardDefaults.cardColors(containerColor = SurfaceCard)
+                    Surface(
+                        modifier  = Modifier.fillMaxWidth().height(300.dp),
+                        shape     = RoundedCornerShape(24.dp),
+                        color     = PureWhite,
+                        border    = BorderStroke(1.dp, BorderGray)
                     ) {
                         MedicalLineChart(
                             entries   = data,
                             label     = selectedParam,
-                            modifier  = Modifier.fillMaxSize().padding(16.dp)
+                            modifier  = Modifier.fillMaxSize().padding(20.dp)
                         )
                     }
 
                     // Stats row
                     val values = data.map { it.second }
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        StatCard("Min",  String.format("%.1f", values.min()), Modifier.weight(1f))
-                        StatCard("Max",  String.format("%.1f", values.max()), Modifier.weight(1f))
-                        StatCard("Latest", String.format("%.1f", values.last()), Modifier.weight(1f))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        StatCard("MINIMUM",  String.format("%.1f", values.min()), Modifier.weight(1f))
+                        StatCard("MAXIMUM",  String.format("%.1f", values.max()), Modifier.weight(1f))
+                        StatCard("LATEST",   String.format("%.1f", values.last()), Modifier.weight(1f))
                     }
                 } else {
-                    Card(
+                    Surface(
                         modifier  = Modifier.fillMaxWidth(),
-                        shape     = RoundedCornerShape(12.dp),
-                        colors    = CardDefaults.cardColors(containerColor = NeutralGrayLight)
+                        shape     = RoundedCornerShape(20.dp),
+                        color     = ElevationGray
                     ) {
                         Text(
-                            "Need at least 2 reports to show trend",
-                            modifier = Modifier.padding(20.dp),
-                            color    = NeutralGray,
-                            style    = MaterialTheme.typography.bodyMedium
+                            "Insufficient data points for trend analysis. Please upload at least 2 reports.",
+                            modifier = Modifier.padding(24.dp),
+                            color    = MediumGray,
+                            style    = MaterialTheme.typography.bodyMedium,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                     }
                 }
@@ -139,38 +148,43 @@ private fun MedicalLineChart(
                 setTouchEnabled(true)
                 isDragEnabled = true
                 setScaleEnabled(true)
+                setPinchZoom(false)
 
                 axisRight.isEnabled = false
                 axisLeft.apply {
-                    textColor = AndroidColor.parseColor("#757575")
-                    gridColor = AndroidColor.parseColor("#E0E0E0")
+                    textColor = AndroidColor.BLACK
+                    gridColor = AndroidColor.LTGRAY
+                    setDrawAxisLine(false)
+                    textSize = 10f
                 }
 
                 xAxis.apply {
                     position = XAxis.XAxisPosition.BOTTOM
-                    textColor = AndroidColor.parseColor("#757575")
-                    gridColor = AndroidColor.parseColor("#E0E0E0")
+                    textColor = AndroidColor.BLACK
+                    gridColor = AndroidColor.TRANSPARENT
                     valueFormatter = IndexAxisValueFormatter(labels)
                     granularity = 1f
-                    labelCount = labels.size.coerceAtMost(6)
+                    setDrawAxisLine(false)
+                    textSize = 10f
                 }
 
-                animateX(600)
+                animateX(800)
             }
         },
         update = { chart ->
             val dataSet = LineDataSet(chartEntries, label).apply {
-                color = AndroidColor.parseColor("#1565C0")
-                valueTextColor = AndroidColor.parseColor("#212121")
-                lineWidth = 2.5f
-                circleRadius = 5f
-                setCircleColor(AndroidColor.parseColor("#1565C0"))
-                circleHoleColor = AndroidColor.WHITE
+                color = AndroidColor.BLACK
+                valueTextColor = AndroidColor.BLACK
+                lineWidth = 3f
+                setDrawCircles(true)
+                setCircleColor(AndroidColor.BLACK)
+                circleRadius = 6f
                 circleHoleRadius = 3f
+                circleHoleColor = AndroidColor.WHITE
                 mode = LineDataSet.Mode.CUBIC_BEZIER
                 setDrawFilled(true)
-                fillColor = AndroidColor.parseColor("#1565C0")
-                fillAlpha = 25
+                fillColor = AndroidColor.BLACK
+                fillAlpha = 15
                 valueTextSize = 10f
             }
             chart.data = LineData(dataSet)
@@ -182,15 +196,15 @@ private fun MedicalLineChart(
 
 @Composable
 private fun StatCard(label: String, value: String, modifier: Modifier) {
-    Card(
+    Surface(
         modifier  = modifier,
-        shape     = RoundedCornerShape(12.dp),
-        colors    = CardDefaults.cardColors(containerColor = MedicalBlueSurface)
+        shape     = RoundedCornerShape(16.dp),
+        color     = PureWhite,
+        border    = BorderStroke(1.dp, BorderGray)
     ) {
-        Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(value, style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold, color = MedicalBlue)
-            Text(label, style = MaterialTheme.typography.labelSmall, color = NeutralGray)
+        Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black, color = PureBlack)
+            Text(label, style = MaterialTheme.typography.labelSmall, color = MediumGray, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -199,11 +213,9 @@ private fun StatCard(label: String, value: String, modifier: Modifier) {
 private fun EmptyAnalyticsState() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("📊", style = MaterialTheme.typography.displayMedium)
-            Spacer(Modifier.height(12.dp))
-            Text("No trend data available", style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold)
-            Text("Upload reports to see analytics", color = NeutralGray)
+            Text("DATA DEFICIT", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black, color = MediumGray)
+            Spacer(Modifier.height(16.dp))
+            Text("No comparative data points available.", color = LightGray)
         }
     }
 }

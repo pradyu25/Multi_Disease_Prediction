@@ -11,41 +11,41 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val LightColorScheme = lightColorScheme(
-    primary = MedicalBlue,
-    onPrimary = SurfaceWhite,
-    primaryContainer = MedicalBlueSurface,
-    onPrimaryContainer = MedicalBlueDark,
-    secondary = HealthGreen,
-    onSecondary = SurfaceWhite,
-    secondaryContainer = HealthGreenSurface,
-    onSecondaryContainer = HealthGreenDark,
-    tertiary = RiskMedium,
-    background = SurfaceWhite,
-    onBackground = NeutralGrayDark,
-    surface = SurfaceCard,
-    onSurface = NeutralGrayDark,
-    surfaceVariant = NeutralGrayLight,
-    onSurfaceVariant = NeutralGray,
-    error = RiskHigh,
-    errorContainer = Color(0xFFFFEBEE),
-    outline = Color(0xFFBDBDBD)
+    primary = PureBlack,
+    onPrimary = PureWhite,
+    primaryContainer = ElevationGray,
+    onPrimaryContainer = PureBlack,
+    secondary = CharcoalGray,
+    onSecondary = PureWhite,
+    secondaryContainer = LightGray,
+    onSecondaryContainer = CharcoalGray,
+    tertiary = MediumGray,
+    background = GhostWhite,
+    onBackground = PureBlack,
+    surface = PureWhite,
+    onSurface = PureBlack,
+    surfaceVariant = GhostWhite,
+    onSurfaceVariant = MediumGray,
+    error = PureBlack,
+    errorContainer = Color(0xFFFEEFF0),
+    outline = LightGray
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = MedicalBlueLight,
-    onPrimary = MedicalBlueDark,
-    primaryContainer = MedicalBlueDark,
-    onPrimaryContainer = MedicalBlueLight,
-    secondary = HealthGreenLight,
-    onSecondary = HealthGreenDark,
-    secondaryContainer = HealthGreenDark,
-    onSecondaryContainer = HealthGreenLight,
-    background = DarkBackground,
-    onBackground = Color(0xFFE0E0E0),
-    surface = DarkSurface,
-    onSurface = Color(0xFFE0E0E0),
+    primary = PureWhite,
+    onPrimary = PureBlack,
+    primaryContainer = DeepGray,
+    onPrimaryContainer = PureWhite,
+    secondary = LightGray,
+    onSecondary = PureBlack,
+    secondaryContainer = CharcoalGray,
+    onSecondaryContainer = LightGray,
+    background = PureBlack,
+    onBackground = LightGray,
+    surface = NearBlack,
+    onSurface = PureWhite,
     surfaceVariant = DarkCard,
-    error = Color(0xFFEF9A9A)
+    error = PureWhite
 )
 
 @Composable
