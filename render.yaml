@@ -20,6 +20,10 @@ services:
         value: "1440"
       - key: UPLOAD_DIR
         value: "uploads"
+      - key: HF_MODEL_NAME
+        value: "google/flan-t5-small"
+      - key: USE_LLM
+        value: "true"
     # Mount a disk for local uploads if not using S3
     # Use 'free' plan doesn't support disks. If using free, uploads will be lost on restart.
     # disk:

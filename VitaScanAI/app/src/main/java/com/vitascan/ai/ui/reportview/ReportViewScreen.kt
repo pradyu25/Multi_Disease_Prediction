@@ -50,13 +50,37 @@ fun ReportViewScreen(
                 }
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick        = onNavigateToRecs,
-                containerColor = HealthGreen,
-                contentColor   = Color.White
+        bottomBar = {
+            Surface(
+                tonalElevation = 8.dp,
+                shadowElevation = 8.dp,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.Lightbulb, "Recommendations")
+                Row(
+                    modifier = Modifier.padding(16.dp).navigationBarsPadding(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Button(
+                        onClick = { viewModel.analyzeReport() },
+                        modifier = Modifier.weight(1f).height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MedicalBlue)
+                    ) {
+                        Icon(Icons.Default.QueryStats, null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Analyze Risk")
+                    }
+                    Button(
+                        onClick = onNavigateToRecs,
+                        modifier = Modifier.weight(1f).height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = HealthGreen)
+                    ) {
+                        Icon(Icons.Default.AutoAwesome, null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Get Advice")
+                    }
+                }
             }
         }
     ) { padding ->
@@ -171,14 +195,27 @@ private fun ParameterChangeCard(change: ParameterChange) {
                         fontWeight = FontWeight.Medium)
                 }
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(statusIcon, null, tint = statusColor, modifier = Modifier.size(20.dp))
+            Column(horizontalAlignment = Alignment.End) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        when(change.status) {
+                            "improved" -> "Improving"
+                            "worsened" -> "Concern"
+                            else -> "Stable"
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = statusColor,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Icon(statusIcon, null, tint = statusColor, modifier = Modifier.size(16.dp))
+                }
                 change.change?.let {
                     Text(
                         "${if (it > 0) "+" else ""}${String.format("%.1f", it)}",
                         style = MaterialTheme.typography.labelSmall,
                         color = statusColor,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Light
                     )
                 }
             }

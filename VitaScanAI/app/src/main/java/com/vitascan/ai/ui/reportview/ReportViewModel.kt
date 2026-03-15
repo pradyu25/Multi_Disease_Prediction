@@ -8,6 +8,8 @@ import com.vitascan.ai.data.local.entities.ReportEntity
 import com.vitascan.ai.data.models.CompareResponse
 import com.vitascan.ai.data.repository.ReportRepository
 import com.vitascan.ai.domain.usecases.CompareReportsUseCase
+import com.vitascan.ai.domain.usecases.ExtractDataUseCase
+import com.vitascan.ai.domain.usecases.PredictDiseaseUseCase
 import com.vitascan.ai.utils.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -26,6 +28,8 @@ data class ReportViewUiState(
 class ReportViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val reportRepo: ReportRepository,
+    private val extractUseCase: ExtractDataUseCase,
+    private val predictUseCase: PredictDiseaseUseCase,
     private val compareUseCase: CompareReportsUseCase
 ) : ViewModel() {
 
@@ -39,6 +43,7 @@ class ReportViewModel @Inject constructor(
     }
 
     private fun loadReportData() {
+        _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val pred = reportRepo.getLocalPrediction(reportId)
             _uiState.update { it.copy(prediction = pred, isLoading = false) }
@@ -48,7 +53,7 @@ class ReportViewModel @Inject constructor(
             reportRepo.getLocalReports()
                 .collect { reports ->
                     val report = reports.find { it.reportId == reportId }
-                    val previous = reports.firstOrNull { it.reportId != reportId }
+                    val previous = reports.filter { it.reportId != reportId }.firstOrNull()
                     _uiState.update { it.copy(report = report) }
 
                     if (previous != null) {
@@ -58,6 +63,34 @@ class ReportViewModel @Inject constructor(
                         }
                     }
                 }
+        }
+    }
+
+    fun analyzeReport() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            
+            // 1. Extract
+            val extractRes = extractUseCase(reportId)
+            if (extractRes is Result.Error) {
+                _uiState.update { it.copy(isLoading = false, error = extractRes.message) }
+                return@launch
+            }
+            
+            val data = (extractRes as Result.Success).data
+            
+            // 2. Predict
+            // Convert parameters to Double for the use case
+            val params = data.parameters.mapValues { it.value?.toDouble() ?: 0.0 }
+            val predictRes = predictUseCase(reportId, params)
+            
+            if (predictRes is Result.Error) {
+                _uiState.update { it.copy(isLoading = false, error = predictRes.message) }
+                return@launch
+            }
+            
+            // Success - reload data
+            loadReportData()
         }
     }
 }

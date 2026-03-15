@@ -24,8 +24,9 @@ class Settings(BaseSettings):
     # ML model paths
     model_path: str = "ml/models/ensemble.joblib"
 
-    # HuggingFace
-    hf_model_name: str = "google/flan-t5-base"
+    # HuggingFace (Small model for Render 512MB RAM)
+    hf_model_name: str = "google/flan-t5-small"
+    use_llm: bool = True
 
     # Tesseract
     tesseract_cmd: str = "/usr/bin/tesseract"

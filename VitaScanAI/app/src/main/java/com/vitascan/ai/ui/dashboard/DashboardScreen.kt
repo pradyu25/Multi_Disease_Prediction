@@ -87,13 +87,50 @@ fun DashboardScreen(
                 // Risk score cards
                 item {
                     state.latestPrediction?.let { pred ->
-                        RiskScoreSection(pred, onNavigateToUpload)
+                        RiskScoreSection(pred)
                     } ?: EmptyRiskCard(onNavigateToUpload)
+                }
+
+                // Quick Actions
+                item {
+                    Text("Quick Actions", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                }
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        QuickActionButton(
+                            title = "New Scan",
+                            subtitle = "Upload Report",
+                            icon = Icons.Default.AddPhotoAlternate,
+                            color = MedicalBlue,
+                            modifier = Modifier.weight(1f),
+                            onClick = onNavigateToUpload
+                        )
+                        QuickActionButton(
+                            title = "History",
+                            subtitle = "View Trends",
+                            icon = Icons.Default.Insights,
+                            color = RiskMedium,
+                            modifier = Modifier.weight(1f),
+                            onClick = onNavigateToAnalytics
+                        )
+                    }
                 }
 
                 // Recent reports
                 item {
-                    Text("Recent Reports", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Recent Analysis", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        TextButton(onClick = onNavigateToAnalytics) {
+                            Text("See all", color = MedicalBlue)
+                        }
+                    }
                 }
                 if (state.recentReports.isEmpty()) {
                     item {
@@ -140,14 +177,47 @@ private fun GreetingHeader(name: String) {
 }
 
 @Composable
-private fun RiskScoreSection(pred: PredictionEntity, onUpload: () -> Unit) {
+private fun QuickActionButton(
+    title: String,
+    subtitle: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    color: Color,
+    modifier: Modifier,
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier.height(100.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = SurfaceCard),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(12.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(color.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(icon, null, tint = color, modifier = Modifier.size(20.dp))
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text(subtitle, style = MaterialTheme.typography.labelSmall, color = NeutralGray)
+        }
+    }
+}
+
+@Composable
+private fun RiskScoreSection(pred: PredictionEntity) {
     Column {
-        Text("Health Risk Overview",
+        Text("Latest Health Risk",
             style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             RiskCard(label = "Diabetes",   risk = pred.diabetesRisk,     icon = Icons.Default.WaterDrop,    modifier = Modifier.weight(1f))
             RiskCard(label = "Heart",      risk = pred.heartDiseaseRisk, icon = Icons.Default.Favorite,     modifier = Modifier.weight(1f))

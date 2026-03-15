@@ -29,40 +29,44 @@ class LLMService:
                 print(f"Error loading LLM: {e}")
 
     def generate_recommendations(self, parameters: Dict[str, float], risks: Dict[str, int]) -> Dict[str, str]:
+        if not settings.use_llm:
+            return self._fallback_recommendations(risks)
+            
         self._load_model()
         
         if not self.is_loaded:
             # Fallback if model failed to load
             return self._fallback_recommendations(risks)
             
-        # Construct prompt for a more professional medical AI assistant
-        context = (
-            f"The patient has the following estimated disease risks based on lab values: "
-            f"Diabetes: {risks.get('diabetes_risk') or 0}%, "
-            f"Heart Disease: {risks.get('heart_disease_risk') or 0}%, "
-            f"Anemia: {risks.get('anemia_risk') or 0}%. "
-        )
-                  
-        param_str = ", ".join([f"{k}: {v}" for k, v in parameters.items()])
-        context += f"Relevant lab parameters detected: {param_str}."
-        
-        # More structured prompts for FLAN-T5
-        diet_prompt = f"Context: {context} Task: Provide one specific dietary recommendation to reduce these risks. Answer:"
-        exercise_prompt = f"Context: {context} Task: Suggest one specific physical activity or exercise routine suitable for this profile. Answer:"
-        doctor_prompt = f"Context: {context} Task: Which medical specialist should this patient consult first? (e.g. Cardiologist, Endocrinologist, GP). Answer:"
-        lifestyle_prompt = f"Context: {context} Task: Suggest one important lifestyle change (like sleep, stress, or habits). Answer:"
-        
-        diet = self._generate_text(diet_prompt)
-        exercise = self._generate_text(exercise_prompt)
-        doctor = self._generate_text(doctor_prompt)
-        lifestyle = self._generate_text(lifestyle_prompt)
-        
-        return {
-            "diet": diet,
-            "exercise": exercise,
-            "doctor": doctor,
-            "lifestyle": lifestyle
-        }
+        with torch.no_grad():
+            # Construct prompt for a more professional medical AI assistant
+            context = (
+                f"The patient has the following estimated disease risks based on lab values: "
+                f"Diabetes: {risks.get('diabetes_risk') or 0}%, "
+                f"Heart Disease: {risks.get('heart_disease_risk') or 0}%, "
+                f"Anemia: {risks.get('anemia_risk') or 0}%. "
+            )
+                      
+            param_str = ", ".join([f"{k}: {v}" for k, v in parameters.items()])
+            context += f"Relevant lab parameters detected: {param_str}."
+            
+            # More structured prompts for FLAN-T5
+            diet_prompt = f"Context: {context} Task: Provide one specific dietary recommendation to reduce these risks. Answer:"
+            exercise_prompt = f"Context: {context} Task: Suggest one specific physical activity or exercise routine suitable for this profile. Answer:"
+            doctor_prompt = f"Context: {context} Task: Which medical specialist should this patient consult first? (e.g. Cardiologist, Endocrinologist, GP). Answer:"
+            lifestyle_prompt = f"Context: {context} Task: Suggest one important lifestyle change (like sleep, stress, or habits). Answer:"
+            
+            diet = self._generate_text(diet_prompt)
+            exercise = self._generate_text(exercise_prompt)
+            doctor = self._generate_text(doctor_prompt)
+            lifestyle = self._generate_text(lifestyle_prompt)
+            
+            return {
+                "diet": diet,
+                "exercise": exercise,
+                "doctor": doctor,
+                "lifestyle": lifestyle
+            }
         
     def _generate_text(self, prompt: str) -> str:
         try:
