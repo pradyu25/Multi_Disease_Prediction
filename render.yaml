@@ -2,7 +2,7 @@ envVarGroups:
   - name: vitascan-shared
     envVars:
       - key: DATABASE_URL
-        # Value will be set in the Render Dashboard once
+        value: "postgres://placeholder-replace-in-dashboard"
       - key: SECRET_KEY
         generateValue: true
       - key: ALGORITHM
