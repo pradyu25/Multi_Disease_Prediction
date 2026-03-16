@@ -33,6 +33,7 @@ android {
             )
             buildConfigField("String", "BASE_URL", "\"https://vitascan-ai-backend.onrender.com/\"")
             buildConfigField("String", "RECS_URL", "\"https://vitascan-ai-recommender.onrender.com/\"")
+            signingConfig = signingConfigs.getByName("debug")
         }
         debug {
             isDebuggable = true
