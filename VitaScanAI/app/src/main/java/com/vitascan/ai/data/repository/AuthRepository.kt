@@ -19,7 +19,7 @@ class AuthRepository @Inject constructor(
     private val userDao: UserDao
 ) {
     suspend fun login(email: String, password: String): Result<AuthResponse> {
-        val result = safeApiCall { api.login(LoginRequest(email, password)) }
+        val result = safeApiCall { api.login(email = email, password = password) }
         if (result is Result.Success) {
             persistSession(result.data)
         }

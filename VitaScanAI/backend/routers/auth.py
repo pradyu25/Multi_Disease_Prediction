@@ -57,9 +57,11 @@ async def signup(req: SignupRequest, db: AsyncSession = Depends(get_db)):
     )
     return AuthResponse(access_token=token, token_type="bearer", user=user_dto)
 
+from fastapi.security import OAuth2PasswordRequestForm
+
 @router.post("/login", response_model=AuthResponse)
-async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == req.email))
+async def login(req: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).where(User.email == req.username))
     user = result.scalar_one_or_none()
     
     if not user or not verify_password(req.password, user.password_hash):
